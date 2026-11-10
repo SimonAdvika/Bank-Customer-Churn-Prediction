@@ -1088,6 +1088,62 @@
 
         }
 
+    
+        /* =====================================================
+           PAGE ROUTING + NEW PAGES
+        ===================================================== */
+
+        a.nav-item { text-decoration: none; cursor: pointer; transition: background .2s, color .2s; }
+        a.nav-item:hover { background: #1f2c44; color: white; }
+        a.nav-item.active:hover { background: #293750; }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 25px; }
+        .stat-box { background: white; border: 1px solid #e6ebf1; border-radius: 16px; padding: 20px; box-shadow: 0 8px 30px rgba(15,23,42,.045); }
+        .stat-box span { display: block; font-size: 12px; color: #7c8ba3; margin-bottom: 8px; }
+        .stat-box strong { font-size: 28px; color: #17233c; }
+        .t-churn { color: #d14343 !important; }
+        .t-stay { color: #16865b !important; }
+
+        .table-wrap { overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th { text-align: left; font-size: 11px; color: #7c8ba3; font-weight: 700; padding: 10px 12px; border-bottom: 1px solid #edf0f4; white-space: nowrap; }
+        .data-table td { padding: 12px; border-bottom: 1px solid #f1f4f8; white-space: nowrap; }
+        .data-table tr:last-child td { border-bottom: none; }
+
+        .pill { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .pill.churn { background: #fff0f0; color: #d14343; }
+        .pill.stay { background: #eaf9f1; color: #16865b; }
+
+        .empty-state { text-align: center; padding: 40px 10px; color: #8792a3; font-size: 14px; }
+        .empty-state a { color: #25344d; font-weight: 700; margin-left: 6px; }
+
+        .toolbar { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+        .toolbar select { height: 40px; padding: 0 12px; border: 1px solid #dfe5ec; border-radius: 9px; background: #fbfcfe; font-size: 13px; }
+        .ghost-btn, .link-btn { border: none; cursor: pointer; font-size: 12px; font-weight: 700; border-radius: 8px; }
+        .ghost-btn { background: #f1f4f7; color: #566276; padding: 0 16px; }
+        .ghost-btn:hover { background: #e7ebef; }
+        .link-btn { background: #25344d; color: white; padding: 7px 12px; margin-right: 6px; }
+        .link-btn.danger { background: #fff0f0; color: #d14343; margin-right: 0; }
+
+        .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .bar-row { display: grid; grid-template-columns: 110px 1fr 70px; align-items: center; gap: 12px; margin-bottom: 14px; font-size: 13px; }
+        .bar-track { height: 12px; background: #e3e8ee; border-radius: 20px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 20px; background: #3f5a8a; transition: width .5s ease; }
+        .bar-fill.churn { background: #dc5b5b; }
+        .bar-fill.stay { background: #36a675; }
+        .bar-val { text-align: right; color: #566276; font-weight: 700; }
+        .chart-empty { color: #8792a3; font-size: 13px; padding: 20px 0; }
+
+        @media (max-width: 1050px) {
+            .stat-grid { grid-template-columns: 1fr 1fr; }
+            .analytics-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 750px) {
+            .stat-grid { grid-template-columns: 1fr; }
+        }
     </style>
 
 </head>
@@ -1129,7 +1185,7 @@
 
         <nav class="nav">
 
-            <div class="nav-item active">
+            <a href="#dashboard" class="nav-item active" data-page="dashboard">
 
                 <span class="nav-icon">
                     ◕
@@ -1139,10 +1195,10 @@
                     Dashboard
                 </span>
 
-            </div>
+            </a>
 
 
-            <div class="nav-item">
+            <a href="#customer-review" class="nav-item" data-page="customer-review">
 
                 <span class="nav-icon">
                     ♟
@@ -1152,10 +1208,10 @@
                     Customer Review
                 </span>
 
-            </div>
+            </a>
 
 
-            <div class="nav-item">
+            <a href="#ml-prediction" class="nav-item" data-page="ml-prediction">
 
                 <span class="nav-icon">
                     ◈
@@ -1165,10 +1221,10 @@
                     ML Prediction
                 </span>
 
-            </div>
+            </a>
 
 
-            <div class="nav-item">
+            <a href="#analytics" class="nav-item" data-page="analytics">
 
                 <span class="nav-icon">
                     ╱
@@ -1178,7 +1234,7 @@
                     Analytics
                 </span>
 
-            </div>
+            </a>
 
         </nav>
 
@@ -1211,6 +1267,42 @@
     ====================================================== -->
 
     <main class="content">
+        <!-- ===================== PAGE: DASHBOARD ===================== -->
+        <div class="page" id="page-dashboard">
+            <div class="top-title">
+                <h1>Dashboard</h1>
+                <p>Overview of the churn predictions you have run.</p>
+            </div>
+
+            <div class="stat-grid">
+                <div class="stat-box"><span>Total predictions</span><strong id="statTotal">0</strong></div>
+                <div class="stat-box"><span>Likely to churn</span><strong id="statChurn" class="t-churn">0</strong></div>
+                <div class="stat-box"><span>Likely to stay</span><strong id="statStay" class="t-stay">0</strong></div>
+                <div class="stat-box"><span>Average churn probability</span><strong id="statAvg">&ndash;</strong></div>
+            </div>
+
+            <section class="card">
+                <div class="card-header">
+                    <h2>Recent predictions</h2>
+                    <p>Your last five results. Open Customer Review for the full list.</p>
+                </div>
+                <div class="card-body">
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead><tr><th>Time</th><th>Country</th><th>Age</th><th>Balance</th><th>Churn probability</th><th>Result</th></tr></thead>
+                            <tbody id="recentBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="recentEmpty">
+                        No predictions yet.
+                        <a href="#ml-prediction">Run your first prediction</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ===================== PAGE: ML PREDICTION ===================== -->
+        <div class="page" id="page-predict">
 
 
         <div class="top-title">
@@ -1629,7 +1721,80 @@
 
 
 
-        <!-- =====================================================
+        </div>
+
+        
+        <!-- ===================== PAGE: CUSTOMER REVIEW ===================== -->
+        <div class="page" id="page-review">
+            <div class="top-title">
+                <h1>Customer Review</h1>
+                <p>Every customer you have scored. Load one back into the form to re-run it.</p>
+            </div>
+
+            <section class="card">
+                <div class="card-header">
+                    <h2>Prediction history</h2>
+                    <p id="reviewCount">0 customers</p>
+                </div>
+                <div class="card-body">
+                    <div class="toolbar">
+                        <select id="reviewFilter">
+                            <option value="all">All results</option>
+                            <option value="churn">Likely to churn</option>
+                            <option value="stay">Likely to stay</option>
+                        </select>
+                        <button type="button" class="ghost-btn" id="clearHistory">Clear history</button>
+                    </div>
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th><th>Country</th><th>Gender</th><th>Age</th>
+                                    <th>Credit score</th><th>Balance</th><th>Products</th>
+                                    <th>Active</th><th>Churn %</th><th>Result</th><th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="reviewBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="reviewEmpty">
+                        Nothing to show.
+                        <a href="#ml-prediction">Run a prediction</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ===================== PAGE: ANALYTICS ===================== -->
+        <div class="page" id="page-analytics">
+            <div class="top-title">
+                <h1>Analytics</h1>
+                <p id="analyticsNote">Based on the predictions made in this browser.</p>
+            </div>
+
+            <div class="analytics-grid">
+                <section class="card">
+                    <div class="card-header"><h2>Outcome split</h2><p>Churn vs stay</p></div>
+                    <div class="card-body" id="chartOutcome"></div>
+                </section>
+
+                <section class="card">
+                    <div class="card-header"><h2>Probability distribution</h2><p>Customers per churn-probability band</p></div>
+                    <div class="card-body" id="chartBands"></div>
+                </section>
+
+                <section class="card">
+                    <div class="card-header"><h2>Average churn probability by country</h2><p>Mean predicted risk</p></div>
+                    <div class="card-body" id="chartCountry"></div>
+                </section>
+
+                <section class="card">
+                    <div class="card-header"><h2>Average churn probability by activity</h2><p>Active vs inactive members</p></div>
+                    <div class="card-body" id="chartActive"></div>
+                </section>
+            </div>
+        </div>
+<!-- =====================================================
              FOOTER
         ====================================================== -->
 
@@ -1925,6 +2090,10 @@
                 showPrediction(
                     result
                 );
+
+                if (window.recordPrediction) {
+                    window.recordPrediction(customerData, result);
+                }
 
 
             } catch (error) {
@@ -2226,6 +2395,183 @@
 
 </script>
 
+
+
+<script>
+(function () {
+
+    // ---------------- storage ----------------
+    const KEY = "churnai_history";
+    const MAX = 200;
+
+    function load() {
+        try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+        catch (e) { return []; }
+    }
+    function save(list) {
+        try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, MAX))); }
+        catch (e) { /* storage unavailable: history lasts until reload */ }
+    }
+
+    let history = load();
+
+    window.recordPrediction = function (input, result) {
+        history.unshift({
+            id: Date.now(),
+            time: new Date().toISOString(),
+            input: input,
+            status: result.status,
+            prob: Number(result.probability)
+        });
+        history = history.slice(0, MAX);
+        save(history);
+    };
+
+    // ---------------- helpers ----------------
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const money = (n) => Number(n).toLocaleString("en-US");
+    const when = (iso) => new Date(iso).toLocaleString([], {day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit"});
+    const pill = (s) => '<span class="pill ' + s + '">' + (s === "churn" ? "Churn" : "Stay") + '</span>';
+    const avg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+
+    // ---------------- dashboard ----------------
+    function renderDashboard() {
+        const churn = history.filter(h => h.status === "churn").length;
+        $("statTotal").textContent = history.length;
+        $("statChurn").textContent = churn;
+        $("statStay").textContent = history.length - churn;
+        const a = avg(history.map(h => h.prob));
+        $("statAvg").textContent = a === null ? "–" : a.toFixed(1) + "%";
+
+        const recent = history.slice(0, 5);
+        $("recentBody").innerHTML = recent.map(h =>
+            "<tr><td>" + when(h.time) + "</td><td>" + esc(h.input.geography) + "</td><td>" + esc(h.input.age) +
+            "</td><td>" + money(h.input.balance) + "</td><td>" + h.prob.toFixed(2) + "%</td><td>" + pill(h.status) + "</td></tr>"
+        ).join("");
+        $("recentEmpty").style.display = recent.length ? "none" : "block";
+        $("recentBody").closest(".table-wrap").style.display = recent.length ? "block" : "none";
+    }
+
+    // ---------------- customer review ----------------
+    function renderReview() {
+        const f = $("reviewFilter").value;
+        const rows = history.filter(h => f === "all" || h.status === f);
+        $("reviewCount").textContent = rows.length + (rows.length === 1 ? " customer" : " customers");
+
+        $("reviewBody").innerHTML = rows.map(h =>
+            "<tr><td>" + when(h.time) + "</td><td>" + esc(h.input.geography) + "</td><td>" + esc(h.input.gender) +
+            "</td><td>" + esc(h.input.age) + "</td><td>" + esc(h.input.credit_score) + "</td><td>" + money(h.input.balance) +
+            "</td><td>" + esc(h.input.products) + "</td><td>" + (h.input.active_member ? "Yes" : "No") +
+            "</td><td>" + h.prob.toFixed(2) + "%</td><td>" + pill(h.status) + "</td><td>" +
+            '<button class="link-btn" data-load="' + h.id + '">Load</button>' +
+            '<button class="link-btn danger" data-del="' + h.id + '">Delete</button></td></tr>'
+        ).join("");
+
+        $("reviewEmpty").style.display = rows.length ? "none" : "block";
+        $("reviewBody").closest(".table-wrap").style.display = rows.length ? "block" : "none";
+    }
+
+    $("reviewFilter").addEventListener("change", renderReview);
+
+    $("clearHistory").addEventListener("click", function () {
+        if (history.length && confirm("Delete all saved predictions?")) {
+            history = []; save(history); renderReview();
+        }
+    });
+
+    $("reviewBody").addEventListener("click", function (e) {
+        const loadId = e.target.getAttribute("data-load");
+        const delId = e.target.getAttribute("data-del");
+        if (delId) {
+            history = history.filter(h => String(h.id) !== delId);
+            save(history); renderReview();
+        } else if (loadId) {
+            const h = history.find(x => String(x.id) === loadId);
+            if (!h) return;
+            const i = h.input;
+            ["credit_score","age","geography","gender","tenure","balance","products","salary","has_card","active_member"]
+                .forEach(k => { $(k).value = i[k]; });
+            location.hash = "#ml-prediction";
+        }
+    });
+
+    // ---------------- analytics ----------------
+    function bars(el, rows, cls) {
+        if (!rows.length) { el.innerHTML = '<div class="chart-empty">No data yet.</div>'; return; }
+        el.innerHTML = rows.map(r =>
+            '<div class="bar-row"><span>' + esc(r.label) + '</span>' +
+            '<div class="bar-track"><div class="bar-fill ' + (r.cls || cls || "") + '" style="width:' + r.pct + '%"></div></div>' +
+            '<span class="bar-val">' + esc(r.text) + '</span></div>'
+        ).join("");
+    }
+
+    function renderAnalytics() {
+        const n = history.length;
+        $("analyticsNote").textContent = n
+            ? "Based on " + n + " prediction" + (n === 1 ? "" : "s") + " made in this browser."
+            : "No predictions yet. Run some on the ML Prediction page and the charts will fill in.";
+
+        if (!n) {
+            ["chartOutcome","chartBands","chartCountry","chartActive"].forEach(id =>
+                $(id).innerHTML = '<div class="chart-empty">No data yet.</div>');
+            return;
+        }
+
+        const churn = history.filter(h => h.status === "churn").length;
+        bars($("chartOutcome"), [
+            {label: "Likely to churn", pct: churn / n * 100, text: churn + " (" + (churn / n * 100).toFixed(0) + "%)", cls: "churn"},
+            {label: "Likely to stay", pct: (n - churn) / n * 100, text: (n - churn) + " (" + ((n - churn) / n * 100).toFixed(0) + "%)", cls: "stay"}
+        ]);
+
+        const bands = [[0,20],[20,40],[40,60],[60,80],[80,100.01]];
+        const counts = bands.map(b => history.filter(h => h.prob >= b[0] && h.prob < b[1]).length);
+        const maxC = Math.max(...counts, 1);
+        bars($("chartBands"), bands.map((b, i) => ({
+            label: Math.round(b[0]) + "–" + Math.min(100, Math.round(b[1])) + "%",
+            pct: counts[i] / maxC * 100, text: String(counts[i])
+        })));
+
+        const byCountry = ["France","Germany","Spain"].map(c => {
+            const a = avg(history.filter(h => h.input.geography === c).map(h => h.prob));
+            return a === null ? null : {label: c, pct: a, text: a.toFixed(1) + "%"};
+        }).filter(Boolean);
+        bars($("chartCountry"), byCountry);
+
+        const byActive = [["Active members", 1], ["Inactive members", 0]].map(p => {
+            const a = avg(history.filter(h => Number(h.input.active_member) === p[1]).map(h => h.prob));
+            return a === null ? null : {label: p[0], pct: a, text: a.toFixed(1) + "%"};
+        }).filter(Boolean);
+        bars($("chartActive"), byActive);
+    }
+
+    // ---------------- router ----------------
+    const PAGES = {
+        "dashboard":       {el: "page-dashboard", render: renderDashboard},
+        "ml-prediction":   {el: "page-predict",   render: function () {}},
+        "customer-review": {el: "page-review",    render: renderReview},
+        "analytics":       {el: "page-analytics", render: renderAnalytics}
+    };
+
+    function route() {
+        let key = location.hash.replace("#", "");
+        if (!PAGES[key]) key = "dashboard";
+
+        document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+        $(PAGES[key].el).classList.add("active");
+
+        document.querySelectorAll(".nav-item").forEach(a =>
+            a.classList.toggle("active", a.getAttribute("data-page") === key));
+
+        PAGES[key].render();
+        window.scrollTo(0, 0);
+    }
+
+    window.addEventListener("hashchange", route);
+    route();
+
+})();
+</script>
 
 </body>
 

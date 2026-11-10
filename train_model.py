@@ -3,7 +3,7 @@ import pickle
 
 import numpy as np
 import pandas as pd
-import tensorflow as tf
+from sklearn.neural_network import MLPClassifier
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -22,7 +22,7 @@ MODEL_DIR = "models"
 
 MODEL_PATH = os.path.join(
     MODEL_DIR,
-    "bank_churn_deep_learning.keras"
+    "bank_churn_mlp.pkl"
 )
 
 SCALER_PATH = os.path.join(
@@ -42,7 +42,7 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 
 
 print("\n" + "=" * 60)
-print("BANK CUSTOMER CHURN - MODEL TRAINING")
+print("BANK CUSTOMER CHURN  MODEL TRAINING")
 print("=" * 60)
 
 print("\nLoading dataset...")
@@ -318,140 +318,40 @@ print(
 
 
 
-print("\nBuilding Deep Learning model...")
+print("\nBuilding neural network (scikitlearn MLP, no TensorFlow needed)...")
 
-
-model = tf.keras.Sequential([
-
-    tf.keras.layers.Input(
-        shape=(X_train.shape[1],)
-    ),
-
-    tf.keras.layers.Dense(
-        64,
-        activation="relu"
-    ),
-
-    tf.keras.layers.Dropout(
-        0.30
-    ),
-
-    tf.keras.layers.Dense(
-        32,
-        activation="relu"
-    ),
-
-    tf.keras.layers.Dropout(
-        0.20
-    ),
-
-    tf.keras.layers.Dense(
-        16,
-        activation="relu"
-    ),
-
-    tf.keras.layers.Dense(
-        1,
-        activation="sigmoid"
-    )
-])
-
-
-
-
-model.compile(
-
-    optimizer=tf.keras.optimizers.Adam(
-        learning_rate=0.001
-    ),
-
-    loss="binary_crossentropy",
-
-    metrics=[
-        "accuracy"
-    ]
+model = MLPClassifier(
+    hidden_layer_sizes=(64, 32, 16),
+    activation="relu",
+    solver="adam",
+    learning_rate_init=0.001,
+    batch_size=32,
+    alpha=1e-4,
+    max_iter=200,
+    early_stopping=True,
+    validation_fraction=0.20,
+    n_iter_no_change=10,
+    random_state=42,
+    verbose=True
 )
-
-
-print("\nModel architecture:")
-
-model.summary()
-
-
 
 print("\nStarting training...")
+model.fit(X_train, y_train)
 
-early_stopping = tf.keras.callbacks.EarlyStopping(
+with open(MODEL_PATH, "wb") as file:
+    pickle.dump(model, file)
 
-    monitor="val_loss",
-
-    patience=10,
-
-    restore_best_weights=True
-)
-
-
-history = model.fit(
-
-    X_train,
-
-    y_train,
-
-    validation_split=0.20,
-
-    epochs=100,
-
-    batch_size=32,
-
-    callbacks=[
-        early_stopping
-    ],
-
-    verbose=1
-)
-
-
-
-
-model.save(
-    MODEL_PATH
-)
-
-
-print(
-    "\nDeep Learning model saved:",
-    MODEL_PATH
-)
-
+print("\nNeural network model saved:", MODEL_PATH)
 
 
 print("\nEvaluating model...")
 
-loss, accuracy = model.evaluate(
-    X_test,
-    y_test,
-    verbose=0
-)
+accuracy = model.score(X_test, y_test)
+print(f"\nTest Accuracy : {accuracy:.4f}")
+print(f"Accuracy      : {accuracy * 100:.2f}%")
 
 
-print(
-    f"\nTest Loss     : {loss:.4f}"
-)
-
-print(
-    f"Test Accuracy : {accuracy:.4f}"
-)
-
-print(
-    f"Accuracy      : {accuracy * 100:.2f}%"
-)
-
-
-
-probabilities = model.predict(
-    X_test,
-    verbose=0
-).flatten()
+probabilities = model.predict_proba(X_test)[:, 1]
 
 
 predictions = (
