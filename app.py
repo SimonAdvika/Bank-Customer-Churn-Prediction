@@ -27,7 +27,7 @@ def load_pickle(path):
         return pickle.load(file)
 
 
-print("Loading model...")
+print("Loading model... - app.py:30")
 model = load_pickle(MODEL_PATH)
 scaler = load_pickle(SCALER_PATH)
 feature_columns = list(load_pickle(FEATURE_PATH))
@@ -40,7 +40,7 @@ if len(feature_columns) != expected or scaler.n_features_in_ != expected:
         "Run `python train_model.py` to regenerate all three files together."
     )
 
-print("Model, scaler and features loaded. Features:", feature_columns)
+print("Model, scaler and features loaded. Features: - app.py:43", feature_columns)
 
 
 def read_number(data, key, default, low, high):
@@ -106,11 +106,11 @@ def predict():
     except ValueError as error:
         return jsonify({"success": False, "error": str(error)}), 400
     except Exception as error:
-        print("Prediction error:", error)
+        print("Prediction error: - app.py:109", error)
         return jsonify({"success": False, "error": str(error)}), 500
 
 
 if __name__ == "__main__":
-    print("\nBANK CUSTOMER CHURN PREDICTION")
-    print("Open: http://127.0.0.1:5000\n")
-    app.run(host="127.0.0.1", port=5000, debug=True, use_reloader=False)
+    print("\nBANK CUSTOMER CHURN PREDICTION - app.py:114")
+    print("Open: http://127.0.0.1:5000\n - app.py:115")
+    app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
